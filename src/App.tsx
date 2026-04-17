@@ -12,19 +12,24 @@ import Signup from "./pages/Signup";
 function App() {
     return (
         <BrowserRouter>
-            <Layout>
-                <Routes>
-                    {/* Default Route */}
-                    <Route path="*" element={<Navigate to="/products" />} />
-                    
-                    <Route path="/products" element={<Products />} />
-                    <Route path="/product/:id" element={<ProductDetails />} />
-                    <Route path="/cart" element={<Cart />} />
-                    <Route path="/checkout" element={<Checkout />} />
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/signup" element={<Signup />} />
-                </Routes>
-            </Layout>
+            <Routes>
+
+                {/* Layout wrapper route */}
+                <Route path="/" element={<Layout />}>
+
+                    {/* default redirect */}
+                    <Route index element={<Navigate to="/products" />} />
+
+                    <Route path="products" element={<Products />} />
+                    <Route path="product/:id" element={<ProductDetails />} />
+                    <Route path="cart" element={<Cart />} />
+                    <Route path="checkout" element={<Checkout />} />
+                    <Route path="login" element={<Login />} />
+                    <Route path="signup" element={<Signup />} />
+
+                </Route>
+
+            </Routes>
         </BrowserRouter>
     );
 }

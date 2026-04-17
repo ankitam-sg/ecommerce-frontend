@@ -3,14 +3,22 @@ import { getProducts } from "../api/productApi";
 import type { Product } from "../types/product";
 import Loader from "../components/Loader";
 import ErrorState from "../components/ErrorState";
+import { useNavigate } from "react-router-dom";
 
 const Products = () => {
 
+    // React Router navigation instance
+    const navigate = useNavigate();
+
     // Fetch products using React Query
     const { data, isPending, isError, error } = useQuery<Product[]>({
-        queryKey: ["products"],     // cache key
+        queryKey: ["products"],     // cache key for product list
         queryFn: getProducts,        // API call
     });
+
+    const handleProductClick = (id: number) => {
+        navigate(`/product/${id}`);
+    }
 
     // Show loader while fetching
     if (isPending) return <Loader />;
@@ -25,7 +33,11 @@ const Products = () => {
 
             {/* Render product cards */}
             {data?.map((product) => (
-                <div key={product.id} className="border p-4 rounded">
+                <div 
+                    key={product.id} 
+                    onClick={() => handleProductClick(product.id)}
+                    className="border p-4 rounded cursor-pointer hover:shadow-md transition"
+                >
 
                     {/* Product image */}
                     <img

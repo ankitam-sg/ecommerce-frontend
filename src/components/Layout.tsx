@@ -1,21 +1,17 @@
-import type { ReactNode } from "react"
-import Navbar from "./Navbar"
+import type { ReactNode } from "react";
+import Navbar from "./Navbar";
+import { Outlet } from "react-router-dom";
 
-type Props = {
-    children: ReactNode;
-}
-
-const Layout = ({ children}: Props) => {
+const Layout = () => {
     return (
         <div>
             <Navbar />
 
-            {/* Page content will render here */}
             <main className="p-4">
-                {children}
+                <Outlet />
             </main>
         </div>
-    )
-}
+    );
+};
 
-export default Layout
+export default Layout;
