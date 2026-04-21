@@ -4,16 +4,15 @@ import type { Product } from "../types/product";
 import Loader from "../components/Loader";
 import ErrorState from "../components/ErrorState";
 import { useNavigate } from "react-router-dom";
-import { useCartStore } from "../store/cartStore";
-import { useToastStore } from "../store/toastStore";
+import { useCart } from "../hooks/useCart";
 
 const Products = () => {
 
     // React Router navigation instance
     const navigate = useNavigate();
 
-    // Zustand → cart action (add product to cart)
-    const addItem = useCartStore((state) => state.addItem);
+    // Custom hook → cart action (abstracted from Zustand)
+    const { addToCart } = useCart();
 
     // Fetch products using React Query
     const { data, isPending, isError, error } = useQuery<Product[]>({
@@ -77,7 +76,7 @@ const Products = () => {
                         onClick={(e) => {
                             e.stopPropagation(); // prevent navigation
 
-                            addItem(product, 1); // update cart
+                            addToCart(product, 1);  // update cart
                         }}
                         title="Add to cart"
                         className="

@@ -26,7 +26,7 @@ export const useCartStore = create<CartStore>()(
 
             cartItems: [],
 
-            // Add new item OR merge quantity (with max cap)
+            // Add new item OR merge quantity (respects MAX limit)
             addItem: (product, quantity) => {
 
                 const { showToast } = useToastStore.getState();
@@ -36,12 +36,11 @@ export const useCartStore = create<CartStore>()(
                         (item) => item.id === product.id
                     );
 
-                    // If already exists → merge but don't exceed MAX_QTY
                     if (existing) {
 
                         if (existing.quantity >= MAX_QTY) {
                             showToast({
-                                msg: `Max ${MAX_QTY} items allowed`, // dynamic message
+                                msg: `Max ${MAX_QTY} items allowed`,
                                 type: "limit",
                             });
                             return state;
@@ -61,7 +60,6 @@ export const useCartStore = create<CartStore>()(
                         };
                     }
 
-                    // New item → clamp initial quantity
                     return {
                         cartItems: [
                             ...state.cartItems,
@@ -74,14 +72,13 @@ export const useCartStore = create<CartStore>()(
                     };
                 });
 
-                // Toast handled ONLY here (UI should not duplicate)
                 showToast({
                     msg: TOAST_MESSAGES.CART.ADD,
                     type: "add",
                 });
             },
 
-            // Remove item completely
+            // Remove item
             removeItem: (id) => {
 
                 const { showToast } = useToastStore.getState();
@@ -98,7 +95,7 @@ export const useCartStore = create<CartStore>()(
                 });
             },
 
-            // Increase quantity with max limit enforcement
+            // Increase quantity (single source of truth for MAX logic + toast)
             incQty: (id) => {
 
                 const { showToast } = useToastStore.getState();
@@ -108,7 +105,7 @@ export const useCartStore = create<CartStore>()(
                     const item = state.cartItems.find(i => i.id === id);
                     if (!item) return state;
 
-                    // Block if already at max
+                    // MAX LIMIT HANDLED HERE
                     if (item.quantity >= MAX_QTY) {
                         showToast({
                             msg: `Max ${MAX_QTY} items allowed`,
@@ -117,7 +114,6 @@ export const useCartStore = create<CartStore>()(
                         return state;
                     }
 
-                    // Valid increment
                     showToast({
                         msg: TOAST_MESSAGES.CART.INC,
                         type: "inc",
@@ -133,7 +129,7 @@ export const useCartStore = create<CartStore>()(
                 });
             },
 
-           // Decrease quantity OR remove if reaches 0
+            // Decrease quantity OR remove if last item
             decQty: (id) => {
 
                 const { showToast } = useToastStore.getState();
@@ -145,7 +141,7 @@ export const useCartStore = create<CartStore>()(
 
                     const isLast = item.quantity === 1;
 
-                    // Decide correct toast BEFORE updating state
+                    // toast decision BEFORE mutation (important for correctness)
                     if (isLast) {
                         showToast({
                             msg: TOAST_MESSAGES.CART.REMOVE,
@@ -171,7 +167,7 @@ export const useCartStore = create<CartStore>()(
             },
         }),
         {
-            name: "cart-storage",   // persist storage
+            name: "cart-storage",
         }
     )
 );
