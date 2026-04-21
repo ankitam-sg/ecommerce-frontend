@@ -9,9 +9,15 @@ import Checkout from "./pages/Checkout";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 
+import Toast from "./components/Toast";
+
 function App() {
     return (
         <BrowserRouter>
+
+            {/* Global UI layer (not tied to routing) */}
+            <Toast />
+
             <Routes>
 
                 {/* Layout wrapper route */}
@@ -30,6 +36,7 @@ function App() {
                 </Route>
 
             </Routes>
+
         </BrowserRouter>
     );
 }

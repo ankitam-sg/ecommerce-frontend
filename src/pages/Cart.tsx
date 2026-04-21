@@ -1,5 +1,7 @@
 import { useCartStore } from "../store/cartStore";
 import { FaPlus, FaMinus, FaTrash } from "react-icons/fa";
+import { useToastStore } from "../store/toastStore";
+import { MAX_QTY } from "../constants/cartConfig"; 
 
 const Cart = () => {
 
@@ -70,12 +72,13 @@ const Cart = () => {
                         {/* Decrease */}
                         <button
                             onClick={() => decQty(item.id)}
+                            disabled={item.quantity === 1}
                             title="Decrease Quantity"
-                            className="flex items-center justify-center w-8 h-8 rounded-md 
-                                       bg-gray-200 text-gray-800
-                                       hover:border-gray-700
-                                       active:scale-90
-                                       transition-all duration-150"
+                            className="
+                                flex items-center justify-center w-8 h-8 rounded-md 
+                                bg-gray-200 text-gray-800
+                                disabled:opacity-50 disabled:cursor-not-allowed
+                            "
                         >
                             <FaMinus size={12} />
                         </button>
@@ -89,13 +92,27 @@ const Cart = () => {
 
                         {/* Increase */}
                         <button
-                            onClick={() => incQty(item.id)}
+                            onClick={() => {
+                                if (item.quantity === MAX_QTY) {
+                                    // trigger limit toast manually
+                                    useToastStore.getState().showToast({
+                                        msg: "Max 10 items allowed",
+                                        type: "limit",
+                                    });
+                                    return;
+                                }
+
+                                incQty(item.id);
+                            }}
                             title="Increase Quantity"
-                            className="flex items-center justify-center w-8 h-8 rounded-md 
-                                       bg-gray-200 text-gray-800
-                                       hover:border-gray-700
-                                       active:scale-90
-                                       transition-all duration-150"
+                            className={`
+                                flex items-center justify-center w-8 h-8 rounded-md 
+                                bg-gray-200 text-gray-800
+                                ${item.quantity === MAX_QTY ? "opacity-50 cursor-not-allowed" : ""}
+                                hover:border-gray-700
+                                active:scale-90
+                                transition-all duration-150
+                            `}
                         >
                             <FaPlus size={12} />
                         </button>

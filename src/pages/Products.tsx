@@ -5,30 +5,31 @@ import Loader from "../components/Loader";
 import ErrorState from "../components/ErrorState";
 import { useNavigate } from "react-router-dom";
 import { useCartStore } from "../store/cartStore";
+import { useToastStore } from "../store/toastStore";
 
 const Products = () => {
 
     // React Router navigation instance
     const navigate = useNavigate();
 
-    // Zustand → Get addItem action ONCE (not inside loop)
+    // Zustand → cart action (add product to cart)
     const addItem = useCartStore((state) => state.addItem);
 
     // Fetch products using React Query
     const { data, isPending, isError, error } = useQuery<Product[]>({
-        queryKey: ["products"],     // cache key for product list
-        queryFn: getProducts,        // API call
+        queryKey: ["products"],
+        queryFn: getProducts,
     });
 
     // Navigate to Product Details Page
     const handleProductClick = (id: number) => {
         navigate(`/product/${id}`);
-    }
+    };
 
-    // Show loader while fetching
+    // Loading state
     if (isPending) return <Loader />;
 
-    // Show error UI if request fails
+    // Error state
     if (isError) {
         return <ErrorState msg={(error as Error).message} />;
     }
@@ -36,12 +37,17 @@ const Products = () => {
     return (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 p-5">
 
-            {/* Render product cards */}
+            {/* Product cards list */}
             {data?.map((product) => (
                 <div 
                     key={product.id} 
-                    onClick={() => handleProductClick(product.id)}      // Whole Card is clickable
-                    className="border p-4 rounded-lg cursor-pointer hover:shadow-lg hover:scale-[1.02] transition flex flex-col justify-between"
+                    onClick={() => handleProductClick(product.id)}
+                    className="
+                        border p-4 rounded-lg
+                        cursor-pointer
+                        hover:shadow-lg hover:scale-[1.02]
+                        transition flex flex-col justify-between
+                    "
                 >
 
                     {/* Product image */}
@@ -51,8 +57,9 @@ const Products = () => {
                         className="h-40 object-contain mx-auto"
                     />
 
-                    {/* Info Section (grouping title + price for structure) */}
+                    {/* Product info */}
                     <div className="mt-3">
+
                         {/* Title */}
                         <h2 className="text-sm font-semibold line-clamp-2">
                             {product.title}
@@ -62,13 +69,15 @@ const Products = () => {
                         <p className="text-lg font-bold mt-1">
                             ${product.price}
                         </p>
+
                     </div>
 
-                    {/* Add to Cart Button */}
+                    {/* Add to cart button */}
                     <button
                         onClick={(e) => {
-                            e.stopPropagation();        // Prevent Card click (Navigation) 
-                            addItem(product, 1);           // Add to Cart (with Default Quantity)
+                            e.stopPropagation(); // prevent navigation
+
+                            addItem(product, 1); // update cart
                         }}
                         title="Add to cart"
                         className="
