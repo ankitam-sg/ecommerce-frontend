@@ -1,6 +1,8 @@
 import { useCart } from "../hooks/useCart"; 
 import { FaPlus, FaMinus, FaTrash } from "react-icons/fa";
 import { MAX_QTY } from "../constants/cartConfig"; 
+import ConfirmModal from "../components/ConfirmModal";
+import { useState } from "react"; 
 
 const Cart = () => {
 
@@ -13,6 +15,9 @@ const Cart = () => {
         total,
         totalItems
     } = useCart();
+
+    // state → tracks which item is pending deletion confirmation
+    const [confirmId, setConfirmId] = useState<number | null>(null);
 
     // Empty cart state
     if (cartItems.length === 0) {
@@ -102,9 +107,9 @@ const Cart = () => {
 
                     </div>
 
-                    {/* Remove Item */}
+                    {/* Remove Item → now opens confirmation modal instead of direct delete */}
                     <button
-                        onClick={() => removeItem(item.id)}
+                        onClick={() => setConfirmId(item.id)} // changed: trigger modal instead of direct delete
                         title="Remove Item"
                         className="flex items-center justify-center w-8 h-8 rounded-md
                                    bg-red-500 text-white
@@ -158,6 +163,21 @@ const Cart = () => {
                 </button>
 
             </div>
+
+            {/* Confirmation Modal → handles safe delete flow */}
+            <ConfirmModal
+                open={confirmId !== null}
+                title="Remove Item"
+                msg="Are you sure you want to remove this item from cart?"
+                onCancel={() => setConfirmId(null)} // closes modal without action
+                onConfirm={() => {
+                    if (confirmId !== null) {
+                        removeItem(confirmId); // actual deletion after confirmation
+                    }
+                    setConfirmId(null); // reset modal state
+                }}
+            />
+
         </div>
     );
 };
