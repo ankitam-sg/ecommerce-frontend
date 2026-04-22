@@ -3,8 +3,12 @@ import { FaPlus, FaMinus, FaTrash } from "react-icons/fa";
 import { MAX_QTY } from "../constants/cartConfig"; 
 import ConfirmModal from "../components/ConfirmModal";
 import { useState } from "react"; 
+import { useNavigate } from "react-router-dom"; // added for navigation to product details
 
 const Cart = () => {
+
+    // React router navigation instance
+    const navigate = useNavigate();
 
     // Custom hook → abstracts Zustand logic (UI should NOT know store details)
     const {
@@ -38,18 +42,22 @@ const Cart = () => {
                     className="flex items-center gap-4 rounded-lg p-4 bg-white border border-gray-100 shadow-sm"
                 >
 
-                    {/* Product Image */}
+                    {/* Product Image → now clickable to navigate product details page */}
                     <img
                         src={item.product.image}
                         alt={item.product.title}
-                        className="h-20 w-20 object-contain"
+                        className="h-20 w-20 object-contain cursor-pointer"
+                        onClick={() => navigate(`/product/${item.product.id}`)} 
                     />
 
                     {/* Product Info */}
                     <div className="flex-1">
 
-                        {/* Title */}
-                        <h2 className="text-sm font-semibold line-clamp-2">
+                        {/* Title → now clickable to navigate product details page */}
+                        <h2 
+                            className="text-sm font-semibold line-clamp-2 cursor-pointer hover:underline"
+                            onClick={() => navigate(`/product/${item.product.id}`)} 
+                        >
                             {item.product.title}
                         </h2>
 
