@@ -1,19 +1,18 @@
 import { Link } from "react-router-dom"
-import { useCartStore } from "../store/cartStore"
+import { useCart } from "../hooks/useCart"   
 import { FaStore, FaShoppingBag, FaUser } from "react-icons/fa";
 
 const Navbar = () => {
-   // Get total quantity directly from Zustand store
-    const totalQty = useCartStore(
-        (state) =>
-            state.cartItems.reduce(
-                (sum, item) => sum + item.quantity,
-                0
-            )
-    );
+
+   // Get total quantity via centralized useCart hook 
+    const { totalItems } = useCart();   
 
     return (
-        <nav className="flex justify-between items-center p-4 bg-gray-800 text-white">
+        <nav className="
+            flex justify-between items-center p-4
+            bg-gray-800 text-white
+            sticky top-0 z-50
+        ">
             {/* Logo */}
             <h1 className="font-bold text-lg">
                 E-Commerce
@@ -40,9 +39,9 @@ const Navbar = () => {
                     <FaShoppingBag size={23} />
 
                     {/* Badge */}
-                    {totalQty > 0 && (
+                    {totalItems > 0 && (   
                         <span className="absolute -top-2 -right-3 bg-red-500 text-white text-xs px-1.5 py-0.5 rounded-full">
-                            {totalQty}
+                            {totalItems}   
                         </span>
                     )}
                 </Link>

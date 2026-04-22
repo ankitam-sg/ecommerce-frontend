@@ -35,7 +35,7 @@ const Products = () => {
     }
 
     return (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 p-5 ">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 p-5 relative z-0">
 
             {/* Product cards list */}
             {data?.map((product) => {
