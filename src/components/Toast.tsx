@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useToastStore } from "../store/toastStore";
 import { 
     FaCheckCircle, 
@@ -16,12 +16,24 @@ const Toast = () => {
     // Hide Toast function
     const hideToast = useToastStore((state) => state.hideToast);
 
-    // Auto-hide Toast after 2 sec
+    // Track last toast time
+    const lastToastTimeRef = useRef<number>(0);
+
     useEffect(() => {
         if (toast) {
+            const now = Date.now();
+            const diff = now - lastToastTimeRef.current;
+
+            // simple rule:
+            // fast clicks → short toast
+            // normal clicks → longer toast
+            const duration = diff < 300 ? 150 : 1500;
+
+            lastToastTimeRef.current = now;
+
             const timer = setTimeout(() => {
                 hideToast();
-            }, 2000);
+            }, duration);
 
             return () => clearTimeout(timer);
         }
@@ -34,41 +46,17 @@ const Toast = () => {
     const getToastConfig = () => {
         switch (toast.type) {
             case "add":
-                return {
-                    icon: <FaCheckCircle />,
-                    bg: "bg-green-700",
-                };
-
+                return { icon: <FaCheckCircle />, bg: "bg-green-700" };
             case "remove":
-                return {
-                    icon: <FaTimesCircle />,
-                    bg: "bg-red-600",
-                };
-
+                return { icon: <FaTimesCircle />, bg: "bg-red-600" };
             case "inc":
-                return {
-                    icon: <FaPlusCircle />,
-                    bg: "bg-lime-700",
-                };
-
+                return { icon: <FaPlusCircle />, bg: "bg-lime-700" };
             case "dec":
-                return {
-                    icon: <FaMinusCircle />,
-                    bg: "bg-amber-700",
-                };
-
-            case "limit": 
-            return {
-                icon: <FaBan />,
-                bg: "bg-red-800",
-            };
-
+                return { icon: <FaMinusCircle />, bg: "bg-amber-700" };
+            case "limit":
+                return { icon: <FaBan />, bg: "bg-red-800" };
             default:
-                console.warn("Unknown toast type:", toast.type);
-                return {
-                    icon: <FaCheckCircle />,
-                    bg: "bg-gray-700",
-                };
+                return { icon: <FaCheckCircle />, bg: "bg-gray-700" };
         }
     };
 
@@ -88,14 +76,10 @@ const Toast = () => {
             `}
         >
             {/* Icon */}
-            <span className="text-lg">
-                {icon}
-            </span>
+            <span className="text-lg">{icon}</span>
 
             {/* Message */}
-            <span>
-                {toast.msg}
-            </span>
+            <span>{toast.msg}</span>
         </div>
     );
 };
