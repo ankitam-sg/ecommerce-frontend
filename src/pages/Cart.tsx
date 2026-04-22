@@ -9,7 +9,7 @@ const Cart = () => {
         cartItems,
         inc,
         dec,
-        removeFromCart,
+        removeItem,
         total,
         totalItems
     } = useCart();
@@ -104,7 +104,7 @@ const Cart = () => {
 
                     {/* Remove Item */}
                     <button
-                        onClick={() => removeFromCart(item.id)}
+                        onClick={() => removeItem(item.id)}
                         title="Remove Item"
                         className="flex items-center justify-center w-8 h-8 rounded-md
                                    bg-red-500 text-white

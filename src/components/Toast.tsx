@@ -36,7 +36,7 @@ const Toast = () => {
             case "add":
                 return {
                     icon: <FaCheckCircle />,
-                    bg: "bg-green-600",
+                    bg: "bg-green-700",
                 };
 
             case "remove":
@@ -60,7 +60,7 @@ const Toast = () => {
             case "limit": 
             return {
                 icon: <FaBan />,
-                bg: "bg-red-700",
+                bg: "bg-red-800",
             };
 
             default:

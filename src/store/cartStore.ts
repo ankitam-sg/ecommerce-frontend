@@ -1,9 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { Product } from "../types/product";
-import { useToastStore } from "./toastStore";
-import { MAX_QTY } from "../constants/cartConfig"; 
-import { TOAST_MESSAGES } from "../constants/toastMessages"; 
+import { MAX_QTY } from "../constants/cartConfig";
 
 type CartItem = {
     id: number;
@@ -11,13 +9,18 @@ type CartItem = {
     quantity: number;
 };
 
+// Action result types (store → caller contract)
+export type AddItemStatus = "added" | "limit";
+export type IncStatus = "inc" | "limit";
+export type DecStatus = "dec" | "remove" | null;
+
 type CartStore = {
     cartItems: CartItem[];
 
-    addItem: (product: Product, quantity: number) => void;
+    addItem: (product: Product, quantity: number) => AddItemStatus;
     removeItem: (id: number) => void;
-    incQty: (id: number) => void;
-    decQty: (id: number) => void;
+    incQty: (id: number) => IncStatus;
+    decQty: (id: number) => DecStatus;
 };
 
 export const useCartStore = create<CartStore>()(
@@ -26,23 +29,21 @@ export const useCartStore = create<CartStore>()(
 
             cartItems: [],
 
-            // Add new item OR merge quantity (respects MAX limit)
+            // Add new item OR merge quantity (PURE: no side-effects)
             addItem: (product, quantity) => {
 
-                const { showToast } = useToastStore.getState();
+                let status: AddItemStatus = "added";
 
                 set((state) => {
                     const existing = state.cartItems.find(
                         (item) => item.id === product.id
                     );
 
+                    // Existing item
                     if (existing) {
 
                         if (existing.quantity >= MAX_QTY) {
-                            showToast({
-                                msg: `Max ${MAX_QTY} items allowed`,
-                                type: "limit",
-                            });
+                            status = "limit";
                             return state;
                         }
 
@@ -60,6 +61,7 @@ export const useCartStore = create<CartStore>()(
                         };
                     }
 
+                    // New item
                     return {
                         cartItems: [
                             ...state.cartItems,
@@ -72,52 +74,32 @@ export const useCartStore = create<CartStore>()(
                     };
                 });
 
-                showToast({
-                    msg: TOAST_MESSAGES.CART.ADD,
-                    type: "add",
-                });
+                return status;
             },
 
-            // Remove item
+            // Remove item (PURE)
             removeItem: (id) => {
-
-                const { showToast } = useToastStore.getState();
-
                 set((state) => ({
                     cartItems: state.cartItems.filter(
                         (item) => item.id !== id
                     ),
                 }));
-
-                showToast({
-                    msg: TOAST_MESSAGES.CART.REMOVE,
-                    type: "remove",
-                });
             },
 
-            // Increase quantity (single source of truth for MAX logic + toast)
+            // Increase quantity (PURE)
             incQty: (id) => {
 
-                const { showToast } = useToastStore.getState();
+                let status: IncStatus = "inc";
 
                 set((state) => {
 
                     const item = state.cartItems.find(i => i.id === id);
                     if (!item) return state;
 
-                    // MAX LIMIT HANDLED HERE
                     if (item.quantity >= MAX_QTY) {
-                        showToast({
-                            msg: `Max ${MAX_QTY} items allowed`,
-                            type: "limit",
-                        });
+                        status = "limit";
                         return state;
                     }
-
-                    showToast({
-                        msg: TOAST_MESSAGES.CART.INC,
-                        type: "inc",
-                    });
 
                     return {
                         cartItems: state.cartItems.map((item) =>
@@ -127,12 +109,14 @@ export const useCartStore = create<CartStore>()(
                         ),
                     };
                 });
+
+                return status;
             },
 
-            // Decrease quantity OR remove if last item
+            // Decrease quantity OR remove (PURE)
             decQty: (id) => {
 
-                const { showToast } = useToastStore.getState();
+                let status: DecStatus = null;
 
                 set((state) => {
 
@@ -141,18 +125,7 @@ export const useCartStore = create<CartStore>()(
 
                     const isLast = item.quantity === 1;
 
-                    // toast decision BEFORE mutation (important for correctness)
-                    if (isLast) {
-                        showToast({
-                            msg: TOAST_MESSAGES.CART.REMOVE,
-                            type: "remove",
-                        });
-                    } else {
-                        showToast({
-                            msg: TOAST_MESSAGES.CART.DEC,
-                            type: "dec",
-                        });
-                    }
+                    status = isLast ? "remove" : "dec";
 
                     return {
                         cartItems: state.cartItems
@@ -164,6 +137,8 @@ export const useCartStore = create<CartStore>()(
                             .filter((item) => item.quantity > 0),
                     };
                 });
+
+                return status;
             },
         }),
         {

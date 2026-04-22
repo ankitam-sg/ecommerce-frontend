@@ -4,7 +4,7 @@ import type { Product } from "../types/product";
 import { getProductById } from "../api/productApi";
 import Loader from "../components/Loader";
 import ErrorState from "../components/ErrorState";
-import { useCartStore } from "../store/cartStore";
+import { useCart } from "../hooks/useCart";
 import { useState } from "react";
 
 const ProductDetails = () => {
@@ -12,24 +12,24 @@ const ProductDetails = () => {
     // Get Product ID from URL (/product/:id)
     const { id } = useParams();
 
-    // React Query Client Instance (for Cache Access)
-    const queryClient = useQueryClient();
-
-    // Convert ID safely to Number
+    // Convert ID safely to number
     const productId = Number(id);
 
-    // Local Quantity State - default 1 (frontend only, No backend) 
+    // React Query Client (for cache access)
+    const queryClient = useQueryClient();
+
+    // Local Quantity State (UI only)
     const [qty, setQty] = useState(1);
 
-    // Max Quantity Limit (Hardcoded Business Rule)
-    const MAX_QTY = 10;
+    // Cart Hook (actions + derived state)
+    const { addItem, getRemainingQty } = useCart();
 
-    // 1. Try to get Product from existing Products Cache    
+    // Try to get product from existing cache first
     const cachedProduct = queryClient
         .getQueryData<Product[]>(["products"])
         ?.find((p) => p.id === productId);
 
-    // 2. Fetch Single Product ONLY if not found in QueryCache
+    // Fetch product only if not in cache + valid ID
     const {
         data: product,
         isPending,
@@ -38,12 +38,14 @@ const ProductDetails = () => {
     } = useQuery<Product>({
         queryKey: ["product", productId],
         queryFn: () => getProductById(productId),
-        enabled: !cachedProduct && !!productId,
+        enabled: !!productId && !cachedProduct,
         initialData: cachedProduct,
     });
 
-    // To Add Product to Cart (Zustand)
-    const addItem = useCartStore((state) => state.addItem);
+    // Handle invalid ID AFTER hooks (prevents hook rule violation)
+    if (!productId) {
+        return <ErrorState msg="Invalid product ID" />;
+    }
 
     // Loading state
     if (isPending) return <Loader />;
@@ -53,30 +55,37 @@ const ProductDetails = () => {
         return <ErrorState msg={(error as Error).message} />;
     }
 
+    // Safety guard (prevents crash if no data)
     if (!product) return null;
 
-    // Add to Cart Handler
+    // Remaining quantity for this product
+    const remaining = getRemainingQty(product.id);
+
+    // Single source of truth for stock state (UI only)
+    const isOutOfStock = remaining <= 0;
+
+    // Add to Cart handler (interaction flow only, NOT safety layer)
     const handleAddToCart = () => {
-        addItem(product, qty);
-        setQty(1);                          // Reset after adding item
-    }
+        addItem(product, qty);   // Store enforces actual constraints
+        setQty(1);
+    };
 
     return (
         <div className="max-w-5xl mx-auto p-6">
 
-            {/* Layout split: image + details */}
+            {/* Layout: Image + Details */}
             <div className="grid md:grid-cols-2 gap-8 items-start">
 
-                {/* LEFT: Product Image */}
+                {/* Product Image */}
                 <div className="border rounded-lg p-4 flex justify-center items-center">
-                    <img 
+                    <img
                         src={product.image}
                         alt={product.title}
                         className="h-80 object-contain"
                     />
                 </div>
 
-                {/* RIGHT: Product Info */}
+                {/* Product Info */}
                 <div className="flex flex-col">
 
                     {/* Title */}
@@ -104,38 +113,43 @@ const ProductDetails = () => {
                         ⭐ {product.rating.rate} / 5 ({product.rating.count} reviews)
                     </div>
 
-                    {/* Quantity DropDown */}
+                    {/* Quantity Selector */}
                     <div className="mt-6">
                         <label className="block text-sm font-medium mb-1">
                             Quantity
                         </label>
 
-                        <select
-                            value={qty}
-                            onChange={(e) => setQty(Number(e.target.value))}
-                            className="border rounded-md px-3 py-2"
-                        >
-                            {Array.from({ length: MAX_QTY}, (_, i) => i + 1).map((num) => (
-                                <option key={num} value={num}>
-                                    {num}
-                                </option>
-                            ))}
-                        </select>
+                        {isOutOfStock ? (
+                            <p className="text-red-500 text-sm">
+                                Out of Stock
+                            </p>
+                        ) : (
+                            <select
+                                value={qty}
+                                onChange={(e) => setQty(Number(e.target.value))}
+                                className="border rounded-md px-3 py-2"
+                            >
+                                {Array.from({ length: remaining }, (_, i) => i + 1).map((num) => (
+                                    <option key={num} value={num}>
+                                        {num}
+                                    </option>
+                                ))}
+                            </select>
+                        )}
                     </div>
 
-                    {/* Add to Cart */}
+                    {/* Add to Cart Button */}
                     <div className="mt-6">
                         <button
                             onClick={handleAddToCart}
+                            disabled={isOutOfStock} // UI responsibility only
                             className="
-                                px-6 py-2
-                                rounded-md
-                                text-sm font-medium
-                                bg-blue-600
-                                text-white
-                                hover:bg-blue-800
-                                active:scale-95
+                                px-6 py-2 rounded-md text-sm font-medium
+                                bg-blue-600 text-white
                                 transition
+                                enabled:hover:bg-blue-800
+                                enabled:active:scale-95
+                                disabled:opacity-50 disabled:cursor-not-allowed
                             "
                         >
                             Add to Cart

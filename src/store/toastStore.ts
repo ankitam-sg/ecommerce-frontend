@@ -1,7 +1,7 @@
 import { create } from "zustand";
 
 // Toast type (what msg + type of alert)
-type Toast = {
+export type Toast = {
     msg: string,
     type: "add" | "remove" | "inc" | "dec" | "limit"
 };
@@ -9,15 +9,30 @@ type Toast = {
 type ToastStore = {
     toast: Toast | null;
     showToast: (toast: Toast) => void;      // Show Toast on Screen
-    hideToast: () => void;                          // Hide Toast from Screen
+    hideToast: () => void;                  // Hide Toast from Screen
 };
+
+let timeoutId: ReturnType<typeof setTimeout>;
 
 export const useToastStore = create<ToastStore>((set) => ({
     toast: null,
 
-    // Set Toast msg in Global State
-    showToast: (toast) => set({ toast }),
+    // Set Toast msg in Global State + auto-dismiss
+    showToast: (toast) => {
 
-    // Clear Toast from State
-    hideToast: () => set({ toast: null }),
+        // prevent stacking / race condition
+        if (timeoutId) clearTimeout(timeoutId);
+
+        set({ toast });
+
+        timeoutId = setTimeout(() => {
+            set({ toast: null });
+        }, 2000);
+    },
+
+    // Clear Toast from State manually
+    hideToast: () => {
+        if (timeoutId) clearTimeout(timeoutId);
+        set({ toast: null });
+    },
 }));
