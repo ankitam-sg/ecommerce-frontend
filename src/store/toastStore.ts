@@ -3,8 +3,14 @@ import { create } from "zustand";
 // Toast type (what msg + type of alert)
 export type Toast = {
     msg: string,
-    type: "add" | "remove" | "inc" | "dec" | "limit"
+    type: 
+        // Generic types for auth & further features
+         "success" | "error" | "info" | "warning" 
+
+        // types for Cart 
+        | "add" | "remove" | "inc" | "dec" | "limit"; 
 };
+
 
 type ToastStore = {
     toast: Toast | null;

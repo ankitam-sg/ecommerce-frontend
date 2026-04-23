@@ -10,10 +10,10 @@ import {
 
 const Toast = () => {
 
-    // Get Toast Data from Global State
+    // Get Toast Data from Global State (msg + type)
     const toast = useToastStore((state) => state.toast);
 
-    // Hide Toast function
+    // Function to Hide Toast manually
     const hideToast = useToastStore((state) => state.hideToast);
 
     // Track last toast time
@@ -27,7 +27,7 @@ const Toast = () => {
             // simple rule:
             // fast clicks → short toast
             // normal clicks → longer toast
-            const duration = diff < 300 ? 150 : 1500;
+            const duration = diff < 300 ? 150 : 2000;
 
             lastToastTimeRef.current = now;
 
@@ -45,16 +45,39 @@ const Toast = () => {
     // decide icon + bg based on message
     const getToastConfig = () => {
         switch (toast.type) {
+            
+            // AUTH ACTIONS
+            case "success":
+                return { icon: <FaCheckCircle />, bg: "bg-green-600" };
+
+            case "error":
+                return { icon: <FaTimesCircle />, bg: "bg-red-600" };
+
+            case "info":
+                return { icon: <FaCheckCircle />, bg: "bg-blue-600" };
+
+            case "warning":
+                return { icon: <FaBan />, bg: "bg-yellow-600" };
+
+                
+            // CART ACTIONS
+
             case "add":
                 return { icon: <FaCheckCircle />, bg: "bg-green-700" };
+
             case "remove":
                 return { icon: <FaTimesCircle />, bg: "bg-red-600" };
+
             case "inc":
                 return { icon: <FaPlusCircle />, bg: "bg-lime-700" };
+
             case "dec":
                 return { icon: <FaMinusCircle />, bg: "bg-amber-700" };
+
             case "limit":
                 return { icon: <FaBan />, bg: "bg-red-800" };
+            
+            // Fallback UI (Safety Net)
             default:
                 return { icon: <FaCheckCircle />, bg: "bg-gray-700" };
         }

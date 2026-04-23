@@ -5,4 +5,10 @@ export const TOAST_MESSAGES = {
         INC: "Quantity increased",
         DEC: "Quantity decreased",
     },
+
+    AUTH: {
+        LOGIN_SUCCESS: "Login successful",
+        SIGNUP_SUCCESS: "Signup successful",
+        LOGOUT: "Logged out",
+    },
 };

@@ -87,7 +87,7 @@ export const useCart = () => {
     return {
         cartItems,
 
-        // wrapped actions (IMPORTANT: expose THESE, not base ones)
+        // wrapped actions (use THESE, not store directly)
         addItem,
         removeItem,
         inc,
