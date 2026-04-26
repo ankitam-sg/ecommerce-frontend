@@ -5,7 +5,7 @@ export type Toast = {
     msg: string,
     type: 
         // Generic types for auth & further features
-         "success" | "error" | "info" | "warning" 
+         "success" | "error" | "info" | "warning" | "logout"
 
         // types for Cart 
         | "add" | "remove" | "inc" | "dec" | "limit"; 

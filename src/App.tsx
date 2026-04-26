@@ -10,6 +10,7 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 
 import Toast from "./components/Toast";
+import ProtectedRoute from "./routes/ProtectedRoute";
 
 function App() {
     return (
@@ -29,7 +30,14 @@ function App() {
                     <Route path="products" element={<Products />} />
                     <Route path="product/:id" element={<ProductDetails />} />
                     <Route path="cart" element={<Cart />} />
-                    <Route path="checkout" element={<Checkout />} />
+                    <Route 
+                        path="checkout" 
+                        element={
+                            <ProtectedRoute requiresAuth>
+                                <Checkout />
+                            </ProtectedRoute>
+                        } 
+                    />
                     
                     <Route path="login" element={<Login />} />
                     <Route path="signup" element={<Signup />} />

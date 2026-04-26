@@ -5,7 +5,7 @@ import {
     FaTimesCircle, 
     FaPlusCircle, 
     FaMinusCircle, 
-    FaBan
+    FaBan,
 } from "react-icons/fa";
 
 const Toast = () => {
@@ -58,8 +58,10 @@ const Toast = () => {
 
             case "warning":
                 return { icon: <FaBan />, bg: "bg-yellow-600" };
-
-                
+            
+            case "logout":
+                return { icon: <FaTimesCircle />, bg: "bg-red-600" };
+  
             // CART ACTIONS
 
             case "add":

@@ -15,6 +15,9 @@ const Login = () => {
     // auth wrapper (handles success toast)
     const { loginUser } = useAuth();
 
+    // Extract correct redirect path safely
+    const from = location.state?.from?.pathname || "/products";
+
     // RHF setup
     const {
         register,
@@ -53,8 +56,8 @@ const Login = () => {
             return;
         }
 
-        // Success → redirect to intended page or fallback
-        navigate(location.state?.from || "/products");
+        // Use correct redirect path
+        navigate(from, { replace: true });
     };
 
     return (

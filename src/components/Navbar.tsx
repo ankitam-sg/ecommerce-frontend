@@ -44,32 +44,30 @@ const Navbar = () => {
             {/* RIGHT - Actions */}
             <div className="flex items-center gap-6">
 
-                {/* Logged in UI */}
+                {/* Products - always visible */}
+                <Link to="/products" title="Products">
+                    <FaStore size={23} />
+                </Link>
+
+                {/* Cart - always visible */}
+                <Link to="/cart" title="Cart" className="relative">
+                    <FaShoppingBag size={23} />
+
+                    {totalItems > 0 && (
+                        <span className="absolute -top-2 -right-3 bg-red-500 text-xs px-1.5 py-0.5 rounded-full">
+                            {totalItems}
+                        </span>
+                    )}
+                </Link>
+
+                {/* Auth actions */}
                 {currentUser ? (
-                    <>
-                        {/* Products */}
-                        <Link to="/products" title="Products">
-                            <FaStore size={23} />
-                        </Link>
-
-                        {/* Cart */}
-                        <Link to="/cart" title="Cart" className="relative">
-                            <FaShoppingBag size={23} />
-
-                            {totalItems > 0 && (
-                                <span className="absolute -top-2 -right-3 bg-red-500 text-xs px-1.5 py-0.5 rounded-full">
-                                    {totalItems}
-                                </span>
-                            )}
-                        </Link>
-
-                        {/* Logout */}
-                        <button onClick={logoutUser} title="Logout">
-                            <FaSignOutAlt size={23} />
-                        </button>
-                    </>
+                    // logout only when logged in
+                    <button onClick={logoutUser} title="Logout">
+                        <FaSignOutAlt size={23} />
+                    </button>
                 ) : (
-                    /* Guest UI */
+                    // login only when logged out
                     <Link to="/login" title="Login">
                         <FaUser size={23} />
                     </Link>
@@ -79,6 +77,5 @@ const Navbar = () => {
         </nav>
     );
 };
-
 
 export default Navbar;

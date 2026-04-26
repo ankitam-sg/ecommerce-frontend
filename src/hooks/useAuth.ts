@@ -59,7 +59,7 @@ export const useAuth = () => {
 
         showToast({
             msg: TOAST_MESSAGES.AUTH.LOGOUT,
-            type: "info",
+            type: "logout",
         });
     };
 

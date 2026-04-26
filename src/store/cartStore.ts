@@ -21,6 +21,8 @@ type CartStore = {
     removeItem: (id: number) => void;
     incQty: (id: number) => IncStatus;
     decQty: (id: number) => DecStatus;
+
+    clearCart: () => void; // clears entire cart (used after order)
 };
 
 export const useCartStore = create<CartStore>()(
@@ -139,6 +141,11 @@ export const useCartStore = create<CartStore>()(
                 });
 
                 return status;
+            },
+
+            // Reset cart after successful order
+            clearCart: () => {
+                set({ cartItems: [] });
             },
         }),
         {

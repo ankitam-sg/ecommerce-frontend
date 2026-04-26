@@ -66,7 +66,7 @@ const Cart = () => {
                             ${item.product.price}
                         </p>
 
-                        {/* Subtotal per item (derived UI state) */}
+                        {/* Subtotal per item A(derived UI state) */}
                         <p className="text-sm text-gray-500 mt-1">
                             Subtotal: ${(item.product.price * item.quantity).toFixed(2)}
                         </p>
@@ -156,6 +156,7 @@ const Cart = () => {
                 </div>
 
                 <button
+                    onClick={() => navigate("/checkout")} 
                     className="
                         w-full mt-2
                         py-2
